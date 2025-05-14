@@ -109,7 +109,8 @@ export const logout = async (
   ): Promise<any> => {
     const { access_token } = req.query;
     if (!access_token || typeof access_token !== "string") {
-      return res.status(400).send("Missing access_token");
+        await logoutSession();
+        return res.status(200).json({ message: 'Access token invalidated' });
     }
   
     try {

@@ -31,7 +31,11 @@ export const getHoldingsAndPositions = async () => {
   return { holdings, positions };
 };
 
-export const logoutSession = async (access_token: string) => {
+export const logoutSession = async (access_token?: string) => {
     accessToken = null;
-    kite.invalidateAccessToken(access_token);
+    if (access_token) {
+        kite.invalidateAccessToken(access_token);
+    } else {
+        kite.invalidateAccessToken();
+    }
 }
