@@ -6,6 +6,7 @@ import {
   setAccessToken,
   isAuthenticated,
   logoutSession,
+  getProfile,
 } from "../services/kite.service";
 
 interface Holding {
@@ -27,10 +28,11 @@ interface PortfolioData {
   overallPnL?: number;
 }
 
-export const home = (req: Request, res: Response): any => {
+export const home = async (req: Request, res: Response): Promise<any> => {
   if (!isAuthenticated()) {
     return res.send(`<a href="${getLoginURL()}">Login to Zerodha</a>`);
   }
+  await logoutSession();
   return res.status(200).json({ message: "Already authenticaled" });
 };
 
@@ -103,21 +105,36 @@ export const getPortfolio = async (
   }
 };
 
-export const logout = async (
-    req: Request,
-    res: Response
-  ): Promise<any> => {
-    const { access_token } = req.query;
-    if (!access_token || typeof access_token !== "string") {
-        await logoutSession();
-        return res.status(200).json({ message: 'Access token invalidated' });
-    }
-  
-    try {
-      await logoutSession(access_token);
-      return res.status(200).json({ message: 'Access token invalidated' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Error generating session");
-    }
-  };
+export const logout = async (req: Request, res: Response): Promise<any> => {
+  const { access_token } = req.query;
+  if (!access_token || typeof access_token !== "string") {
+    await logoutSession();
+    return res.status(200).json({ message: "Access token invalidated" });
+  }
+
+  try {
+    await logoutSession(access_token);
+    return res.status(200).json({ message: "Access token invalidated" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error generating session");
+  }
+};
+
+export const getProfileDetails = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { access_token } = req.query;
+  if (!isAuthenticated()) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+
+  try {
+    const profile = await getProfile();
+    return res.status(200).json(profile);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({error: "Failed to fetch profile"});
+  }
+};

@@ -39,3 +39,8 @@ export const logoutSession = async (access_token?: string) => {
         kite.invalidateAccessToken();
     }
 }
+
+export const getProfile = async () => {
+    const profile = await kite.getProfile();
+    return profile;
+}
